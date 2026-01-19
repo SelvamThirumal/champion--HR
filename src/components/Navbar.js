@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/Logo4.jpg';
 
@@ -6,12 +6,18 @@ function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null); // 'about' or 'services'
+  const [openDropdown, setOpenDropdown] = useState(null);
   
-  const location = useLocation(); // Now properly used
+  const location = useLocation();
+  const dropdownRefs = useRef({});
 
-  const aboutDropdownRef = useRef(null);
-  const servicesDropdownRef = useRef(null);
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const toggleDropdown = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
@@ -27,86 +33,65 @@ function Navbar() {
     closeAllDropdowns();
   };
 
-  const closeMobileMenu = useCallback(() => {
+  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
     closeAllDropdowns();
-  }, []);
+  };
 
   const toggleSearch = () => {
     setShowSearch(!showSearch);
     if (isMobileMenuOpen) setIsMobileMenuOpen(false);
     closeAllDropdowns();
+    scrollToTop(); // Add scroll to top for search too
   };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      // Close mobile menu
-      if (isMobileMenuOpen && 
-          !e.target.closest('.navbar-collapse') && 
-          !e.target.closest('.navbar-toggler')) {
-        closeMobileMenu();
-      }
-      
-      // Close dropdowns
-      if (openDropdown && 
-          !e.target.closest('.dropdown') &&
-          !e.target.closest('.dropdown-toggle')) {
-        closeAllDropdowns();
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isMobileMenuOpen, openDropdown, closeMobileMenu]);
 
   // Close mobile menu when route changes
   useEffect(() => {
     closeMobileMenu();
-  }, [location.pathname, closeMobileMenu]);
+    scrollToTop(); // Scroll to top on route change
+  }, [location.pathname]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     console.log('Searching for:', searchQuery);
-    // Implement search functionality here
-    // For example: navigate to search results page
-    // navigate(`/search?q=${searchQuery}`);
+    scrollToTop();
   };
 
-  // Custom Dropdown Component
-  const CustomDropdown = ({ title, items, icon, dropdownName }) => (
-    <li className="nav-item dropdown" ref={dropdownName === 'about' ? aboutDropdownRef : servicesDropdownRef}>
+  // Handle link click with scroll to top
+  const handleLinkClick = () => {
+    closeMobileMenu();
+    closeAllDropdowns();
+    scrollToTop();
+  };
+
+  // Simple Dropdown Component with scroll to top
+  const SimpleDropdown = ({ title, items, icon, dropdownName }) => (
+    <li className="nav-item dropdown">
       <button
-        className="nav-link dropdown-toggle text-dark custom-hover-red btn btn-link p-0 border-0"
-        onClick={() => toggleDropdown(dropdownName)}
-        aria-expanded={openDropdown === dropdownName}
-        style={{ background: 'none', textDecoration: 'none' }}
-      >
-        <i className={`fas ${icon} me-1`}></i> {title}
-      </button>
-      <ul 
-        className={`dropdown-menu ${openDropdown === dropdownName ? 'show' : ''}`}
-        style={{
-          display: openDropdown === dropdownName ? 'block' : 'none',
-          position: 'absolute',
-          zIndex: 1000
+        className="nav-link dropdown-toggle text-dark custom-hover-red d-flex align-items-center"
+        onClick={() => {
+          toggleDropdown(dropdownName);
+          scrollToTop();
         }}
+        aria-expanded={openDropdown === dropdownName}
+      >
+        <i className={`fas ${icon} me-2`}></i> {title}
+      </button>
+      <div 
+        className={`dropdown-menu ${openDropdown === dropdownName ? 'show' : ''}`}
+        ref={el => dropdownRefs.current[dropdownName] = el}
       >
         {items.map((item, index) => (
-          <li key={index}>
-            <Link 
-              className="dropdown-item" 
-              to={item.path}
-              onClick={() => {
-                closeMobileMenu();
-                closeAllDropdowns();
-              }}
-            >
-              {item.label}
-            </Link>
-          </li>
+          <Link 
+            key={index}
+            className="dropdown-item" 
+            to={item.path}
+            onClick={handleLinkClick}
+          >
+            <i className="fas fa-arrow-right me-2 text-danger"></i> {item.label}
+          </Link>
         ))}
-      </ul>
+      </div>
     </li>
   );
 
@@ -122,73 +107,54 @@ function Navbar() {
   ];
 
   return (
-    <nav className="navbar navbar-expand-lg navbar sticky-top bg-white">
+    <nav className="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
       <div className="container">
-        {/* Logo */}
-        <Link className="navbar-brand d-flex align-items-center" to="/" onClick={closeMobileMenu}>
-          <img src={logo} alt="Logo" width="100" height="100" className="me-2" />
+        {/* Logo - Click also scrolls to top */}
+        <Link 
+          className="navbar-brand" 
+          to="/" 
+          onClick={handleLinkClick}
+        >
+          <img src={logo} alt="Logo" width="100" height="100" />
         </Link>
 
         {/* Mobile Toggle Button */}
         <button
           className="navbar-toggler border-0"
           type="button"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle navigation"
+          onClick={() => {
+            toggleMobileMenu();
+            scrollToTop();
+          }}
         >
-          <span className="navbar-toggler-icon-custom">
-            {isMobileMenuOpen ? (
-              <i className="fas fa-times fs-4"></i>
-            ) : (
-              <i className="fas fa-bars fs-4"></i>
-            )}
-          </span>
+          <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Mobile Search */}
-        {showSearch && (
-          <div className="w-100 py-2 d-lg-none">
-            <form className="d-flex px-3" onSubmit={handleSearchSubmit}>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="btn btn-primary ms-2">
-                <i className="fas fa-search"></i>
-              </button>
-            </form>
-          </div>
-        )}
-
         {/* Navbar Links */}
-        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
+        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center">
             <li className="nav-item">
               <Link 
-                className="nav-link text-dark custom-hover-red" 
-                to="/"
-                onClick={closeMobileMenu}
+                className="nav-link text-dark" 
+                to="/" 
+                onClick={handleLinkClick}
               >
-                <i className="fas fa-home me-1"></i>HOME
+                <i className="fas fa-home me-2"></i>HOME
               </Link>
             </li>
 
             <li className="nav-item">
               <Link 
-                className="nav-link text-dark custom-hover-red" 
-                to="/jobs"
-                onClick={closeMobileMenu}
+                className="nav-link text-dark" 
+                to="/jobs" 
+                onClick={handleLinkClick}
               >
-                <i className="fas fa-briefcase me-1"></i> JOBS
+                <i className="fas fa-briefcase me-2"></i> JOBS
               </Link>
             </li>
 
             {/* About Dropdown */}
-            <CustomDropdown 
+            <SimpleDropdown 
               title="ABOUT"
               items={aboutItems}
               icon="fa-user"
@@ -196,7 +162,7 @@ function Navbar() {
             />
 
             {/* Services Dropdown */}
-            <CustomDropdown 
+            <SimpleDropdown 
               title="SERVICES"
               items={servicesItems}
               icon="fa-cogs"
@@ -205,44 +171,29 @@ function Navbar() {
 
             <li className="nav-item">
               <Link 
-                className="nav-link text-dark custom-hover-red" 
-                to="/contact"
-                onClick={closeMobileMenu}
+                className="nav-link text-dark" 
+                to="/contact" 
+                onClick={handleLinkClick}
               >
-                <i className="fas fa-phone-alt me-1"></i> CONTACT
+                <i className="fas fa-phone-alt me-2"></i> CONTACT
               </Link>
             </li>
 
-            {/* Desktop Search */}
-            <li className="nav-item d-none d-lg-block">
+            {/* Search Button */}
+            <li className="nav-item">
               <button
-                className="btn btn-link nav-link text-dark custom-hover-red"
+                className="btn btn-link nav-link text-dark"
                 onClick={toggleSearch}
-                aria-label="Search"
               >
                 <i className="fas fa-search"></i>
               </button>
             </li>
-
-            {/* Mobile Search */}
-            <li className="nav-item d-lg-none">
-              <button
-                className="btn btn-link nav-link text-dark custom-hover-red w-100 text-start"
-                onClick={toggleSearch}
-              >
-                <i className="fas fa-search me-1"></i> SEARCH
-              </button>
-            </li>
           </ul>
 
-          {/* Desktop Search Box */}
-          {showSearch && !isMobileMenuOpen && (
-            <div className="d-none d-lg-block">
-              <form
-                className="d-flex ms-2 mt-2"
-                onSubmit={handleSearchSubmit}
-                style={{ maxWidth: '200px' }}
-              >
+          {/* Search Box */}
+          {showSearch && (
+            <div className="d-flex mt-2 mt-lg-0 ms-lg-3">
+              <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
                   type="text"
                   className="form-control"
@@ -251,7 +202,7 @@ function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
                 />
-                <button type="submit" className="btn btn-primary ms-2">
+                <button type="submit" className="btn btn-danger ms-2">
                   <i className="fas fa-search"></i>
                 </button>
               </form>
@@ -261,94 +212,103 @@ function Navbar() {
       </div>
 
       <style>{`
-        .navbar-toggler {
-          border: none;
-          padding: 0.5rem;
+        .navbar {
+          padding: 0;
         }
         
-        .navbar-toggler:focus {
-          box-shadow: none;
-          outline: none;
+        .nav-link {
+          padding: 1rem 1.5rem !important;
+          font-weight: 500;
+          transition: all 0.3s;
+          cursor: pointer;
         }
         
-        .navbar-toggler-icon-custom {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 30px;
-          height: 30px;
+        .nav-link:hover {
+          color: #dc3545 !important;
+          background-color: #f8f9fa;
         }
         
-        .navbar-toggler-icon-custom i {
-          color: #000;
-          transition: color 0.3s ease;
+        /* Desktop Dropdown */
+        @media (min-width: 992px) {
+          .dropdown-menu {
+            border: none;
+            border-radius: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 0;
+            background: white;
+            min-width: 200px;
+          }
+          
+          .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: #333 !important;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            cursor: pointer;
+          }
+          
+          .dropdown-item:last-child {
+            border-bottom: none;
+          }
+          
+          .dropdown-item:hover {
+            background-color: #dc3545;
+            color: white !important;
+          }
+          
+          .dropdown-item:hover i {
+            color: white !important;
+          }
         }
         
-        .dropdown-toggle::after {
-          display: inline-block;
-          margin-left: 0.255em;
-          vertical-align: 0.255em;
-          content: "";
-          border-top: 0.3em solid;
-          border-right: 0.3em solid transparent;
-          border-bottom: 0;
-          border-left: 0.3em solid transparent;
-        }
-        
-        .dropdown-menu {
-          background: #343a40;
-          border: none;
-          border-radius: 0.375rem;
-        }
-        
-        .dropdown-item {
-          color: #fff !important;
-          padding: 0.5rem 1rem;
-        }
-        
-        .dropdown-item:hover {
-          background: #495057;
-          color: #fff !important;
-        }
-        
+        /* Mobile Styles */
         @media (max-width: 991.98px) {
           .navbar-collapse {
             background: white;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 1000;
             padding: 1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            max-height: 80vh;
-            overflow-y: auto;
+            border-top: 1px solid #eee;
+          }
+          
+          .nav-item {
+            border-bottom: 1px solid #f5f5f5;
+          }
+          
+          .nav-item:last-child {
+            border-bottom: none;
           }
           
           .dropdown-menu {
             background: #f8f9fa;
-            margin-left: 1rem;
-            position: static !important;
-            float: none;
-            width: auto;
-            box-shadow: none;
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            width: 100%;
           }
           
           .dropdown-item {
-            color: #212529 !important;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #333 !important;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
           }
           
-          .nav-link {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-          }
-          
-          .nav-link:last-child {
+          .dropdown-item:last-child {
             border-bottom: none;
           }
+          
+          .dropdown-item:hover {
+            background: #e9ecef;
+          }
+        }
+        
+        .custom-hover-red:hover {
+          color: #dc3545 !important;
+        }
+        
+        /* Smooth scrolling for the whole page */
+        html {
+          scroll-behavior: smooth;
         }
       `}</style>
     </nav>
