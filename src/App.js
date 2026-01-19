@@ -75,6 +75,7 @@ function AppContent() {
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/view-job/:id" element={<ViewJob />} />
         <Route path="/login" element={<Login />} />
+        <Route path='/services'element={<Services/>}/>
 
         {/* Protected Admin Routes */}
         <Route path="/admin" element={

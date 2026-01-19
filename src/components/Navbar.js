@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/Logo4.jpg';
 
@@ -6,43 +6,110 @@ function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'about' or 'services'
+
+  const aboutDropdownRef = useRef(null);
+  const servicesDropdownRef = useRef(null);
+
+  const toggleDropdown = (dropdownName) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const closeAllDropdowns = () => {
+    setOpenDropdown(null);
+  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-    // Close search if open
-    if (showSearch) {
-      setShowSearch(false);
-    }
+    if (showSearch) setShowSearch(false);
+    closeAllDropdowns();
   };
 
   const toggleSearch = () => {
     setShowSearch(!showSearch);
-    // Close mobile menu if open
-    if (isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+    closeAllDropdowns();
   };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    closeAllDropdowns();
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Close mobile menu
+      if (isMobileMenuOpen && 
+          !e.target.closest('.navbar-collapse') && 
+          !e.target.closest('.navbar-toggler')) {
+        closeMobileMenu();
+      }
+      
+      // Close dropdowns
+      if (openDropdown && 
+          !e.target.closest('.dropdown') &&
+          !e.target.closest('.dropdown-toggle')) {
+        closeAllDropdowns();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isMobileMenuOpen, openDropdown]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     console.log('Searching for:', searchQuery);
   };
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  // Custom Dropdown Component
+  const CustomDropdown = ({ title, items, icon, dropdownName }) => (
+    <li className="nav-item dropdown" ref={dropdownName === 'about' ? aboutDropdownRef : servicesDropdownRef}>
+      <button
+        className="nav-link dropdown-toggle text-dark custom-hover-red btn btn-link p-0 border-0"
+        onClick={() => toggleDropdown(dropdownName)}
+        aria-expanded={openDropdown === dropdownName}
+        style={{ background: 'none', textDecoration: 'none' }}
+      >
+        <i className={`fas ${icon} me-1`}></i> {title}
+      </button>
+      <ul 
+        className={`dropdown-menu ${openDropdown === dropdownName ? 'show' : ''}`}
+        style={{
+          display: openDropdown === dropdownName ? 'block' : 'none',
+          position: 'absolute',
+          zIndex: 1000
+        }}
+      >
+        {items.map((item, index) => (
+          <li key={index}>
+            <Link 
+              className="dropdown-item" 
+              to={item.path}
+              onClick={() => {
+                closeMobileMenu();
+                closeAllDropdowns();
+              }}
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
 
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (isMobileMenuOpen && !e.target.closest('.navbar-collapse') && !e.target.closest('.navbar-toggler')) {
-        closeMobileMenu();
-      }
-    };
+  const aboutItems = [
+    { path: "/about/mission", label: "Mission & Values" },
+    { path: "/about/company", label: "Our Company" }
+  ];
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isMobileMenuOpen]);
+  const servicesItems = [
+    { path: "/services/staffing", label: "Staffing Solutions" },
+    { path: "/services/compliance", label: "HR & Statutory Compliance" },
+    { path: "/services/industries", label: "Industries We Serve" }
+  ];
 
   return (
     <nav className="navbar navbar-expand-lg navbar sticky-top bg-white">
@@ -52,32 +119,26 @@ function Navbar() {
           <img src={logo} alt="Logo" width="100" height="100" className="me-2" />
         </Link>
 
-        {/* Single Toggle Button for Mobile Menu */}
+        {/* Mobile Toggle Button */}
         <button
           className="navbar-toggler border-0"
           type="button"
           onClick={toggleMobileMenu}
           aria-label="Toggle navigation"
-          aria-expanded={isMobileMenuOpen}
         >
           <span className="navbar-toggler-icon-custom">
             {isMobileMenuOpen ? (
-              // X icon when menu is open
               <i className="fas fa-times fs-4"></i>
             ) : (
-              // Hamburger icon when menu is closed
               <i className="fas fa-bars fs-4"></i>
             )}
           </span>
         </button>
 
-        {/* Search Box for Mobile (appears when toggled) */}
+        {/* Mobile Search */}
         {showSearch && (
           <div className="w-100 py-2 d-lg-none">
-            <form
-              className="d-flex px-3"
-              onSubmit={handleSearchSubmit}
-            >
+            <form className="d-flex px-3" onSubmit={handleSearchSubmit}>
               <input
                 type="text"
                 className="form-control"
@@ -94,12 +155,8 @@ function Navbar() {
         )}
 
         {/* Navbar Links */}
-        <div 
-          className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`} 
-          id="navbarNav"
-        >
+        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav ms-auto align-items-center">
-            {/* Home */}
             <li className="nav-item">
               <Link 
                 className="nav-link text-dark custom-hover-red" 
@@ -110,7 +167,6 @@ function Navbar() {
               </Link>
             </li>
 
-            {/* Jobs */}
             <li className="nav-item">
               <Link 
                 className="nav-link text-dark custom-hover-red" 
@@ -122,89 +178,21 @@ function Navbar() {
             </li>
 
             {/* About Dropdown */}
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle text-dark custom-hover-red"
-                href="#"
-                id="aboutDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="fas fa-user me-1"></i> ABOUT
-              </a>
-              <ul 
-                className="dropdown-menu dropdown-menu-dark" 
-                aria-labelledby="aboutDropdown"
-              >
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/about/mission"
-                    onClick={closeMobileMenu}
-                  >
-                    Mission & Values
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/about/company"
-                    onClick={closeMobileMenu}
-                  >
-                    Our Company
-                  </Link>
-                </li>
-              </ul>
-            </li>
+            <CustomDropdown 
+              title="ABOUT"
+              items={aboutItems}
+              icon="fa-user"
+              dropdownName="about"
+            />
 
             {/* Services Dropdown */}
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle text-dark custom-hover-red"
-                href="#"
-                id="servicesDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="fas fa-cogs me-1"></i> SERVICES
-              </a>
-              <ul 
-                className="dropdown-menu dropdown-menu-dark" 
-                aria-labelledby="servicesDropdown"
-              >
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/services/staffing"
-                    onClick={closeMobileMenu}
-                  >
-                    Staffing Solutions
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/services/compliance"
-                    onClick={closeMobileMenu}
-                  >
-                    HR & Statutory Compliance
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/services/industries"
-                    onClick={closeMobileMenu}
-                  >
-                    Industries We Serve
-                  </Link>
-                </li>
-              </ul>
-            </li>
+            <CustomDropdown 
+              title="SERVICES"
+              items={servicesItems}
+              icon="fa-cogs"
+              dropdownName="services"
+            />
 
-            {/* Contact */}
             <li className="nav-item">
               <Link 
                 className="nav-link text-dark custom-hover-red" 
@@ -215,7 +203,7 @@ function Navbar() {
               </Link>
             </li>
 
-            {/* Search for Desktop */}
+            {/* Desktop Search */}
             <li className="nav-item d-none d-lg-block">
               <button
                 className="btn btn-link nav-link text-dark custom-hover-red"
@@ -226,19 +214,18 @@ function Navbar() {
               </button>
             </li>
 
-            {/* Search for Mobile inside menu */}
+            {/* Mobile Search */}
             <li className="nav-item d-lg-none">
               <button
                 className="btn btn-link nav-link text-dark custom-hover-red w-100 text-start"
                 onClick={toggleSearch}
-                aria-label="Search"
               >
                 <i className="fas fa-search me-1"></i> SEARCH
               </button>
             </li>
           </ul>
 
-          {/* Search Box for Desktop */}
+          {/* Desktop Search Box */}
           {showSearch && !isMobileMenuOpen && (
             <div className="d-none d-lg-block">
               <form
@@ -263,7 +250,7 @@ function Navbar() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .navbar-toggler {
           border: none;
           padding: 0.5rem;
@@ -287,7 +274,33 @@ function Navbar() {
           transition: color 0.3s ease;
         }
         
-        /* Mobile menu improvements */
+        .dropdown-toggle::after {
+          display: inline-block;
+          margin-left: 0.255em;
+          vertical-align: 0.255em;
+          content: "";
+          border-top: 0.3em solid;
+          border-right: 0.3em solid transparent;
+          border-bottom: 0;
+          border-left: 0.3em solid transparent;
+        }
+        
+        .dropdown-menu {
+          background: #343a40;
+          border: none;
+          border-radius: 0.375rem;
+        }
+        
+        .dropdown-item {
+          color: #fff !important;
+          padding: 0.5rem 1rem;
+        }
+        
+        .dropdown-item:hover {
+          background: #495057;
+          color: #fff !important;
+        }
+        
         @media (max-width: 991.98px) {
           .navbar-collapse {
             background: white;
@@ -303,9 +316,12 @@ function Navbar() {
           }
           
           .dropdown-menu {
-            border: none;
             background: #f8f9fa;
             margin-left: 1rem;
+            position: static !important;
+            float: none;
+            width: auto;
+            box-shadow: none;
           }
           
           .dropdown-item {
@@ -316,6 +332,8 @@ function Navbar() {
           .nav-link {
             padding: 0.75rem 1rem;
             border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
           }
           
           .nav-link:last-child {
