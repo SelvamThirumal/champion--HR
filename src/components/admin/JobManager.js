@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react"; // Removed unused useCallback
 import { useNavigate } from "react-router-dom";
 import { useJobContext } from "../context/JobContext";
 import Logout from "../admin/Logout";
@@ -11,7 +11,7 @@ const JobManager = () => {
   useEffect(() => {
     console.log("JobManager mounted, refreshing jobs...");
     refreshJobs();
-  }, []); // Remove refreshJobs from dependency array
+  }, [refreshJobs]); // Added refreshJobs to dependency array to satisfy ESLint
 
   // Debug logging
   useEffect(() => {
