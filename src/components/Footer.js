@@ -1,9 +1,7 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
-  const location = useLocation();
-
   // Function to scroll to top when any link is clicked
   const handleClick = () => {
     window.scrollTo({
