@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/Logo4.jpg';
 
 function Navbar() {
@@ -7,6 +7,8 @@ function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null); // 'about' or 'services'
+  
+  const location = useLocation(); // Now properly used
 
   const aboutDropdownRef = useRef(null);
   const servicesDropdownRef = useRef(null);
@@ -25,14 +27,14 @@ function Navbar() {
     closeAllDropdowns();
   };
 
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    closeAllDropdowns();
+  }, []);
+
   const toggleSearch = () => {
     setShowSearch(!showSearch);
     if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-    closeAllDropdowns();
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
     closeAllDropdowns();
   };
 
@@ -56,11 +58,19 @@ function Navbar() {
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [isMobileMenuOpen, openDropdown]);
+  }, [isMobileMenuOpen, openDropdown, closeMobileMenu]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    closeMobileMenu();
+  }, [location.pathname, closeMobileMenu]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     console.log('Searching for:', searchQuery);
+    // Implement search functionality here
+    // For example: navigate to search results page
+    // navigate(`/search?q=${searchQuery}`);
   };
 
   // Custom Dropdown Component
