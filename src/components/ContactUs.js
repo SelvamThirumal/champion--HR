@@ -35,11 +35,21 @@ const ContactUs = () => {
             </p>
 
             <div className="d-flex gap-3 mt-4">
-              <a href="#" className="text-dark fs-5"><FaFacebookF /></a>
-              <a href="#" className="text-dark fs-5"><FaLinkedinIn /></a>
-              <a href="#" className="text-dark fs-5"><FaTwitter /></a>
-              <a href="#" className="text-dark fs-5"><FaYoutube /></a>
-              <a href="#" className="text-dark fs-5"><FaInstagram /></a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark fs-5">
+                <FaFacebookF />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-dark fs-5">
+                <FaLinkedinIn />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark fs-5">
+                <FaTwitter />
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-dark fs-5">
+                <FaYoutube />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark fs-5">
+                <FaInstagram />
+              </a>
             </div>
           </div>
 
@@ -58,7 +68,9 @@ const ContactUs = () => {
             <div className="border p-4 text-center bg-white rounded shadow-sm">
               <FaHandshake className="text-danger fs-3 mb-2" />
               <h5 className="text-danger fw-bold">Need Help?</h5>
-              <p className="mb-0">info@championshrservices.com</p>
+              <a href="mailto:info@championshrservices.com" className="text-decoration-none text-dark">
+                <p className="mb-0">info@championshrservices.com</p>
+              </a>
             </div>
           </div>
 
@@ -66,7 +78,9 @@ const ContactUs = () => {
             <div className="border p-4 text-center bg-white rounded shadow-sm">
               <FaPhoneAlt className="text-danger fs-3 mb-2" />
               <h5 className="text-danger fw-bold">Feel Like Talking</h5>
-              <p className="mb-0">+91-9632492563</p>
+              <a href="tel:+919632492563" className="text-decoration-none text-dark">
+                <p className="mb-0">+91-9632492563</p>
+              </a>
             </div>
           </div>
         </div>
