@@ -23,12 +23,6 @@ function HeroSection() {
     });
   };
 
-  const handleNext = () => {
-    if (step === 1) {
-      setStep(2);
-    }
-  };
-
   const handlePrevious = () => {
     if (step === 2) {
       setStep(1);
@@ -103,114 +97,14 @@ function HeroSection() {
             </h1>
 
             <p className="text-muted">
-              Champions HR Services is one of India’s leading <strong>staffing and recruitment consultancies</strong>,
+              Champions HR Services is one of India's leading <strong>staffing and recruitment consultancies</strong>,
               providing <strong>full-time placements, one-time hiring solutions, and bulk recruitment</strong> services
               across diverse industries. We are committed to delivering excellence through robust quality processes,
               strict HR compliance, and a client-centric approach.
             </p>
                  
-
-                 {/* Contact form */}
-
+            {/* Contact form */}
             <ContactForm/>
-  
-
-            {/* {step === 1 && (
-              <form className="row g-2">
-                <div className="col-6">
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    className="form-control border-danger"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="col-6">
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    className="form-control border-danger"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="col-6">
-                  <select
-                    className="form-select border-danger"
-                    name="option"
-                    value={formData.option}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Choose your option</option>
-                    <option value="Looking for a Job">Looking for a Job</option>
-                    <option value="Looking for Staffing Services">Looking for Staffing Services</option>
-                    <option value="Looking for HR Compliance Services">Looking for HR Compliance Services</option>
-                  </select>
-                </div>
-                <div className="col-6">
-                  <input
-                    type="tel"
-                    name="contact"
-                    placeholder="Contact No."
-                    className="form-control border-danger"
-                    value={formData.contact}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="col-12">
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="btn btn-danger w-100"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Submitting...' : 'NEXT >'}
-                  </button>
-                </div>
-              </form>
-            )} */}
-
-            {step === 2 && (
-              <form className="row g-2" onSubmit={handleSubmit}>
-                <div className="col-12">
-                  <textarea
-                    className="form-control border-danger"
-                    name="message"
-                    placeholder="Message"
-                    rows="4"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    required
-                  ></textarea>
-                </div>
-                <div className="col-6">
-                  <button
-                    type="button"
-                    onClick={handlePrevious}
-                    className="btn btn-danger w-100"
-                    disabled={isSubmitting}
-                  >
-                    &lt; Previous
-                  </button>
-                </div>
-                <div className="col-6">
-                  <button
-                    type="submit"
-                    className="btn btn-danger w-100"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
-                  </button>
-                </div>
-              </form>
-            )}
           </div>
 
           <div className="col-md-6 text-center mt-4 mt-md-0">

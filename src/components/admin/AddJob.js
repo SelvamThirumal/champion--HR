@@ -50,7 +50,8 @@ const AddJob = () => {
           state: { message: "Job updated successfully!" } 
         });
       } else {
-        const newJob = await addJob(formData);
+        // Removed the unused variable assignment
+        await addJob(formData);
         // Short delay to ensure the job appears in the list
         setTimeout(() => {
           navigate("/jobs", { 

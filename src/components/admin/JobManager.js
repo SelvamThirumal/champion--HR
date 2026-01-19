@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"; // Removed unused useCallback
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJobContext } from "../context/JobContext";
 import Logout from "../admin/Logout";
@@ -11,7 +11,8 @@ const JobManager = () => {
   useEffect(() => {
     console.log("JobManager mounted, refreshing jobs...");
     refreshJobs();
-  }, [refreshJobs]); // Added refreshJobs to dependency array to satisfy ESLint
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array since we only want to run once on mount
 
   // Debug logging
   useEffect(() => {

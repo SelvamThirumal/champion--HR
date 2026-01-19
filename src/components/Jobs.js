@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useJobContext } from "./context/JobContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Removed useLocation
 import { FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaLocationArrow, FaUpload, FaEnvelope, FaPhone } from 'react-icons/fa';
 import './Jobs.css';
 
 const Jobs = () => {
-  const location = useLocation();
   const { 
     jobs, 
     recentJobs,
@@ -23,7 +22,7 @@ const Jobs = () => {
   useEffect(() => {
     refreshJobs();
     refreshRecentJobs();
-  }, [refreshJobs, refreshRecentJobs]);
+  }, [refreshJobs, refreshRecentJobs]); // Added dependencies
 
   useEffect(() => {
     if (jobs) {
@@ -47,19 +46,15 @@ const Jobs = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Check file type
       if (!file.type.includes('pdf') && !file.type.includes('doc') && !file.type.includes('docx')) {
         alert('Please upload a PDF or Word document');
         return;
       }
-      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('File size should be less than 5MB');
         return;
       }
-      // Here you would handle the file upload
       console.log('Resume selected:', file.name);
-      // You can add your file upload logic here
     }
   };
 
@@ -93,12 +88,10 @@ const Jobs = () => {
                 <div className="jobs-grid">
                   {filteredJobs.map((job) => (
                     <div key={job._id} className="job-card">
-                      {/* 1st: Job Title */}
                       <div className="job-title-section">
                         <h3>{job.title}</h3>
                       </div>
 
-                      {/* 2nd: Category, Location, Experience */}
                       <div className="job-primary-details">
                         <span className="category-tag">{job.category}</span>
                         <div className="detail-item">
@@ -111,7 +104,6 @@ const Jobs = () => {
                         </div>
                       </div>
 
-                      {/* 3rd: Education */}
                       <div className="job-education">
                         <div className="detail-item">
                           <FaGraduationCap />
@@ -119,7 +111,6 @@ const Jobs = () => {
                         </div>
                       </div>
 
-                      {/* 4th: Drive Location */}
                       {job.driveLocation && (
                         <div className="job-drive-location">
                           <div className="detail-item">
@@ -129,7 +120,6 @@ const Jobs = () => {
                         </div>
                       )}
 
-                      {/* 5th: Job Description */}
                       <div className="job-description-section">
                         <h4>Description:</h4>
                         <p className="job-description">
@@ -139,7 +129,6 @@ const Jobs = () => {
                         </p>
                       </div>
 
-                      {/* 6th: Buttons */}
                       <div className="button-group">
                         <button 
                           className="view-button"
