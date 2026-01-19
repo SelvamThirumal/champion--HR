@@ -1,75 +1,9 @@
-import { useState } from 'react';
 import './HeroSection.css';
 import heroImg from '../assets/hero-img.png';
 import { TypeAnimation } from 'react-type-animation';
-import { sendEmail } from './MockEmailService';
 import ContactForm from './ContactForm';
 
 function HeroSection() {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    option: '',
-    contact: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handlePrevious = () => {
-    if (step === 2) {
-      setStep(1);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      console.log("Form data:", formData);
-
-      // Use the mock email service instead of making an actual API call
-      // This ensures the form works even if the email server is not available
-      const responseData = await sendEmail({
-        ...formData,
-        timestamp: new Date().toISOString()
-      });
-
-      console.log("Response data:", responseData);
-
-      // If we got here, the request was successful
-      alert('Message sent successfully!');
-      setStep(1);
-      setFormData({
-        name: '',
-        email: '',
-        option: '',
-        contact: '',
-        message: ''
-      });
-
-    } catch (error) {
-      console.error('Error details:', {
-        message: error.message,
-        formData,
-        error
-      });
-
-      // Show a more user-friendly error message
-      alert("Sorry, we couldn't send your message. Please try again later or contact us directly at info@championshrservices.com");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <section className="hero-section py-5">
       <div className="container">
